@@ -43,6 +43,8 @@ class FinanceQuery():
     def sentiment(self, news_text = None):
         if news_text == None:
             news_text = self.news()
+        for i in range(len(news_text)):
+            news_text[i] = news_text[i].replace('\n', ' ').lower()
         parsed_sentiment = self.sentiment_pipeline(self.truncate_news(news_text))
         neg_cnt = 0; pos_cnt = 0
         for i in parsed_sentiment:
