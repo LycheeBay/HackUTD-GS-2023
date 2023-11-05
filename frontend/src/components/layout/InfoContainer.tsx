@@ -6,7 +6,7 @@ type ContainerTypes  = {
 
 const InfoContainer = ({children}: ContainerTypes) => {
   return (
-    <div className="col-span-5 p-2 shadow-lg bg-opacity-70 rounded-lg">
+    <div className="p-4 shadow-lg bg-opacity-70 rounded-lg bg-gradient-to-tr from-white via-white to-green-50">
       {children}
     </div>
   );
