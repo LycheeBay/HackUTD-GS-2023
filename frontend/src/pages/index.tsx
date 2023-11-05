@@ -14,15 +14,14 @@ import { useState } from "react";
 export default function Home() {
   const [success, setSuccess] = useState(false);
 
-  const [newsResult, setNewsResult] = useState(1);
-  const [socialResult, setSocialResult] = useState(2);
+  const [newsResult, setNewsResult] = useState(3);
+  const [socialResult, setSocialResult] = useState(1);
   // Placeholder first
   const [data, setData] = useState({
-    "1": [222, 248, 210, 263],
-    "2": [1, 12, 3, 4],
-    "3": [1, 2, 3, 14],
-    "4": [1, 22, 23, 4],
-    "5": [11, 2, 3, 4],
+    "1": [-7.903069, -3.0, -2.1, 5.0],
+    "2": [1.796239, 6.820679, 10.0, 13.0],
+    "3": [927000000, 1350000000, 1550000000, 1704000000.0000017],
+    "4": [1965000000, 2450000000, 2700000000, 2846999999.9999895],
   });
 
   const form = useForm({
@@ -31,56 +30,22 @@ export default function Home() {
     },
   });
 
-  // function handleSumbit(event: any) {
-  //   event.preventDefault(); // Prevent the default form submission behavior
-  //   // Changes to real name
-  //   setSuccess(true);
-  //   // Sets real data
-  //   setData({
-  //     "1": [22, 2, 2423, 4],
-  //     "2": [1, 12, 3, 4],
-  //     "3": [21, 2, 3, 14],
-  //     "4": [39, 22, 23, 4],
-  //     "5": [11, 2, 3, 4],
-  //   });
-  //   // Sets real news results
-  //   setNewsResult(3)
-  //   setSocialResult(1)
-  // }
-  async function handleSumbit(event: any) {
-  event.preventDefault(); // Prevent the default form submission behavior
-
-  // Make a GET request to the API URL
-  await fetch('https://api.example.com/data') // Replace with your API endpoint
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json(); // Assuming the API returns JSON data
+  function handleSumbit(event: any) {
+    event.preventDefault(); // Prevent the default form submission behavior
+    // Changes to real name
+    setSuccess(true);
+    // Sets real data
+    setData({
+      "1": [-7.903069, 4.901030, 0.000000, 16.954494869901737],
+      "2": [1.796239, 12.820679, 13.516811, 13.478603453660128],
+      "3": [927000000, 1583000000, 1704000000, 1704000000.0000017],
+      "4": [1965000000, 2982000000, 2847000000, 2846999999.9999895]
     })
-    .then(data => {
-      // Handle the API data
-      setSuccess(true);
 
-      // Assuming the API response data has a structure similar to your example data
-      setData({
-        "1": data[0],
-        "2": data[1],
-        "3": data[2],
-        "4": data[3],
-        "5": data[4],
-      });
-
-      // You may also need to fetch and set the news and social results from the API
-      // Replace 'newsResult' and 'socialResult' with the actual API data properties
-      setNewsResult(data.newsResult);
-      setSocialResult(data.socialResult);
-    })
-    .catch(error => {
-      console.error('Error fetching data from the API:', error);
-    });
-}
-
+    // Sets real news results
+    setNewsResult(3)
+    setSocialResult(3)
+  }
 
   return (
     <Container>
