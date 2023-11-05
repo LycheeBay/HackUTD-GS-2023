@@ -24,7 +24,7 @@ with open("ibm-reddit-2.json", "r") as f:
     print(cnt)
 """
 
-comments = [[] for _ in range(20)]
+comments = [[] for _ in range(40)]
 
 def generate_dates():
     date_list = []
