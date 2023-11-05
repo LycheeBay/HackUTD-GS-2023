@@ -19,7 +19,7 @@ const StockMovement = ({ direction, stockValue }: StockMovementTypes) => {
         (
           <div className="flex items-center gap-1 text-green-500 font-bold text-xl">
             <Icon icon="typcn:arrow-sorted-up" width={44} height={44} />
-            {numberToCurrFormat(stockValue)}
+              High Performance
           </div>
         )}
       {direction === "down" &&

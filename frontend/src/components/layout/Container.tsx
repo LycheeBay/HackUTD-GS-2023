@@ -1,13 +1,15 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode } from "react";
 
-type ContainerTypes  = {
-  children: ReactNode
-}
+type ContainerTypes = {
+  children: ReactNode;
+};
 
-const Container = ({children}: ContainerTypes) => {
+const Container = ({ children }: ContainerTypes) => {
   return (
-  <div className="container mx-auto py-16 pb-80">{children}</div>
-  )
-}
+    <div className="bg-gray-50">
+      <div className="container mx-auto py-8 pb-32">{children}</div>
+    </div>
+  );
+};
 
-export default Container
+export default Container;

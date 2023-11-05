@@ -6,7 +6,7 @@ type ContainerTypes  = {
 
 const SearchContainer = ({children}: ContainerTypes) => {
   return (
-    <div className="p-6 col-span-2 shadow-lg bg-opacity-70 bg-sky-200 rounded-lg">
+    <div className="p-6 shadow-lg rounded-lg h-fit bg-white">
       {children}
     </div>
   );
