@@ -4,12 +4,21 @@ import requests
 from bs4 import BeautifulSoup
 from transformers import pipeline
 import pandas as pd
+import json
+from dateutil.relativedelta import *
 
 class FinanceQuery():
     def __init__(self, stock):
         self.stock = stock
         self.ticker = yf.Ticker(stock)
-        self.sentiment_pipeline = pipeline("sentiment-analysis")
+        self.sentiment_pipeline = pipeline(model = "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis")
+        # print(self.ticker.quarterly_income_stmt)
+        # self.sentiment_pipeline = pipeline("sentiment-analysis")
+        self.oex_list = ["AAPL", "ABBV", "ABT", "ACN", "ADBE", "AIG", "AMD", "AMGN", "AMT", "AMZN", "AVGO", "AXP", "BA", "BAC", "BK", "BKNG", "BLK", "BMY", "BRK.B", "C", "CAT", "CHTR", "CL", "CMCSA", "COF", "COP", "COST", "CRM", "CSCO", "CVS", "CVX", "DE", "DHR", "DIS", "DOW", "DUK", "EMR", "EXC", "F", "FDX", "GD", "GE", "GILD", "GM", "GOOG", "GOOGL", "GS", "HD", "HON", "IBM", "INTC", "JNJ", "JPM", "KHC", "KO", "LIN", "LLY", "LMT", "LOW", "MA", "MCD", "MDLZ", "MDT", "MET", "META", "MMM", "MO", "MRK", "MS", "MSFT", "NEE", "NFLX", "NKE", "NVDA", "ORCL", "PEP", "PFE", "PG", "PM", "PYPL", "QCOM", "RTX", "SBUX", "SCHW", "SO", "SPG", "T", "TGT", "TMO", "TMUS", "TSLA", "TXN", "UNH", "UNP", "UPS", "USB", "V", "VZ", "WFC", "WMT", "XOM"]
+        # print(len(self.oex_list))
+        self.oex_list = self.oex_list[:1]
+        self.tickers = yf.Tickers(self.oex_list)
+
 
     def bal_sheet(self):
         return self.ticker.get_balance_sheet()
@@ -21,7 +30,7 @@ class FinanceQuery():
         data_dict["CurrentLiabilities"] = df.loc["CurrentLiabilities"]
         data_dict["CurrentAssets"] = df.loc["CurrentAssets"]
         # create a NetAssetPerShare column
-        data_dict["NetAssetPerShare"] = df.loc["CurrentAssets"] / df.loc["CurrentLiabilities"]
+        data_dict["NetAssetPerShare"] = df.loc["CurrentAssets"] / df.loc["ShareIssued"]
         return data_dict
         
 
@@ -36,19 +45,12 @@ class FinanceQuery():
     
     def news(self):
         # print(self.ticker.news)
+        print(len(self.ticker.get_news()))
         news_text = []
-        for i in self.ticker.news:
-            # print(i)
+        for i in self.ticker.get_news():
+            print(i)
             url = i['link']
-            request = requests.get(url)
-            soup = BeautifulSoup(request.text, 'html.parser')
-            soup_find = soup.find('div', {'class': 'caas-body'})
-            if soup_find is not None:
-                # print(soup_find.text)
-                news_text.append(soup_find.text)
-            else:
-                # print("-------------------------- WE SCREWED UP --------------------------")
-                news_text.append(i['title'])
+            news_text.append(i['title'])
         return news_text
         
     def sentiment(self, news_text = None):
@@ -59,22 +61,75 @@ class FinanceQuery():
         parsed_sentiment = self.sentiment_pipeline(self.truncate_news(news_text))
         neg_cnt = 0; pos_cnt = 0
         for i in parsed_sentiment:
+            print(i)
             if i['label'] == 'NEGATIVE':
                 neg_cnt += 1
             else:
                 pos_cnt += 1
         return {'positive': pos_cnt, 'negative': neg_cnt}
     
-    def hist(self, start_date = "2019-01-01"):
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        return self.ticker.history(start=start_date, end=end_date)
-    
-stock = FinanceQuery("AMZN")
-# msft.news()
-# print(stock.sentiment())
-print(stock.bal_sheet())
-print(stock.basic_data())
+    # below data for ALL 100 stocks
 
+    def all_balance_sheet_data(self):
+        stocks_dict = {}
+        for i in self.oex_list:
+            stocks_dict[i] = self.tickers.tickers[i].quarterly_balance_sheet
+        return stocks_dict
+    
+    def all_key_data(self):
+        stocks_dict = {}
+        for i in self.oex_list:
+            stocks_dict[i] = {}
+            stocks_dict[i]['balance'] = self.tickers.tickers[i].quarterly_balance_sheet
+            stocks_dict[i]['cashflow'] = self.tickers.tickers[i].quarterly_cashflow
+            stocks_dict[i]['income'] = self.tickers.tickers[i].quarterly_income_stmt
+            stocks_dict[i]['history'] = self.tickers.tickers[i].history(period="max", end = datetime.datetime.today())
+            stocks_dict[i]['history_metadata'] = self.tickers.tickers[i].history_metadata
+        return stocks_dict
+    
+    def stock_key_data(self):
+        stock_dict = {}
+        stock_dict['balance'] = self.ticker.quarterly_balance_sheet
+        stock_dict['cashflow'] = self.ticker.quarterly_cashflow
+        stock_dict['income'] = self.ticker.quarterly_income_stmt
+        stock_dict['history'] = self.ticker.history(period="max", end = datetime.datetime.today().strftime("%Y-%m-%d"))
+        stock_dict['history_metadata'] = self.ticker.history_metadata
+        return stock_dict
+    
+    def news_fetch(self, stock_name):
+        APIKey = "333e352b98454c4fa2374b30403dc0f3"
+        request = requests.get("https://newsapi.org/v2/everything?q="+stock_name.lower()+"&language=en&from=2023-10-05&sortBy=publishedAt&apiKey=" + APIKey)
+        parsed_request = request.json()
+        with open(stock_name.lower() + '.json', 'a') as outfile:
+            json.dump(parsed_request, outfile)
+        print(parsed_request)
+    
+
+    def headline_fetch(self, stock_name):
+        APIKey = "333e352b98454c4fa2374b30403dc0f3"
+        now_time = datetime.datetime.now()
+        six_months_ago = now_time + relativedelta(months=-6)
+        print(six_months_ago)
+        request = requests.get("https://newsapi.org/v2/top-headlines?q="+stock_name.lower()+"&language=en&from=" + six_months_ago.strftime("%Y-%m-%d") + "&sortBy=publishedAt&apiKey=" + APIKey)
+        parsed_request = request.json()
+        with open(stock_name.lower() + '-headline.json', 'a') as outfile:
+            json.dump(parsed_request, outfile)
+        print(parsed_request)
+
+    
+stock = FinanceQuery("IBM")
+# print(stock.all_key_data())
+# msft.news()
+# print(stock.stock_key_data())
+# print(stock.news_fetch("IBM"))
+
+stock.headline_fetch("IBM")
+
+with open('ibm-headline.json', 'r') as json_file:
+    file_read = json.loads(json_file.read())
+    # print(file_read)
+    for entry in file_read["articles"]:
+        print(entry["content"])
 
 """
 TreasurySharesNumber                              515000000.0     460000000.0     480000000.0     460000000.0
