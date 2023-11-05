@@ -5,5 +5,6 @@ reddit = praw.Reddit(client_id="RhpaRfz1w6PUPuec825RrA",
                         user_agent = "hackutd-2023")
 
 subreddit = reddit.subreddit("wallstreetbets")
+print(subreddit.top(limit = 10))
 for submission in subreddit.top(limit = 10):
     print(submission.title)
