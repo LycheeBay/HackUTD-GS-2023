@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import MediumText from "../universal/MediumText";
 import { SegmentedControl } from "@mantine/core";
+import LineGraph from "./LineGraph";
 
 const SwapView = () => {
   const [view, setView] = useState("Predicted Earnings");
@@ -31,14 +32,16 @@ const SwapView = () => {
 
       {determView() === 1
         ? (
-          <div className="bg-black h-96">
-            graph 1
-          </div>
+          <LineGraph
+            dataset={[1, 2, 3, 4, 5]}
+            labels={["one", "two", "three", "four", "five"]}
+          />
         )
         : (
-          <div className="bg-white h-96">
-            graph 2
-          </div>
+          <LineGraph
+            dataset={[3, 2, 3, 1, 5]}
+            labels={["one", "two", "three", "four", "five"]}
+          />
         )}
     </div>
   );
