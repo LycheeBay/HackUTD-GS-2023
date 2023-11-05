@@ -61,6 +61,23 @@ print(get_comment_bucket(comments, date_list, {'created_utc': 1572952304}))
 print(get_comment_bucket(comments, date_list, {'created_utc': 1699161587}))
 
 name = "ibm"
+with open(name + "-reddit.json", "r") as f:
+    data = json.load(f)
+    data_list = data['data']
+    for data_page in data_list:
+        for post in data_page['data']['children']:
+            # print(post['data']['created_utc'])
+            get_comment_bucket(comments, date_list, post['data'])
+
+with open(name + "-reddit-fetches.txt", "w", encoding="utf-8") as f:
+    for i in range(20):
+        f.write(datetime.datetime.strftime(date_list[i], "%Y-%m-%d"))
+        f.write(",")
+        f.write(str(comments[i]))
+        f.write('\n')
+
+"""
+name = "ibm"
 request = requests.get("https://www.reddit.com/search.json?q=" + name)
 # print(request.json())
 req = request.json()
@@ -79,3 +96,4 @@ with open(name + "-reddit-fetches.txt", "w") as f:
         f.write(date_list[i])
         f.write(",")
         f.write(comments[i])
+"""
